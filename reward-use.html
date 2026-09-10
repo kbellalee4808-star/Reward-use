@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>리워드는 어떻게 쓰나요? — 크루즈 멤버십 리워드 사용법</title>
+<meta name="description" content="쌓인 리워드로 크루즈를 예약할 때 적용되는 기준과, 객실가별 필요 리워드를 직접 계산해보는 시뮬레이터입니다.">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   DESIGN SYSTEM — Mobile-First, Luxury Korean Travel
+   Color: Deep Navy + Warm Gold + Clean White
+   Font: Noto Sans KR
+   ═══════════════════════════════════════════════ */
+:root {
+  --navy:        #0a1f38;
+  --navy2:       #102d50;
+  --ocean:       #1a6fa8;
+  --ocean-lt:    #2485c4;
+  --sky:         #f0f6fc;
+  --sky2:        #e6f2fb;
+  --gold:        #c8983a;
+  --gold-lt:     #f5c842;
+  --gold-pale:   #fdf6e3;
+  --ivory:       #fafcfe;
+  --white:       #ffffff;
+  --text:        #0a1f38;
+  --text2:       #334e68;
+  --muted:       #5f7d96;
+  --muted2:      #8fa8bc;
+  --border:      #dbeaf5;
+  --border2:     #ccdded;
+  --green:       #1a7a4a;
+  --green-lt:    #edfbf4;
+  --red:         #c0392b;
+  --red-lt:      #fdf0ef;
+
+  --shadow-sm:   0 2px 8px rgba(10,31,56,.06);
+  --shadow:      0 4px 20px rgba(10,31,56,.09);
+  --shadow-lg:   0 8px 40px rgba(10,31,56,.14);
+  --r:           16px;
+  --r-sm:        10px;
+  --r-xs:        7px;
+
+  /* 타이포 스케일 (모바일 기준) */
+  --fs-hero:     26px;
+  --fs-h1:       22px;
+  --fs-h2:       18px;
+  --fs-h3:       16px;
+  --fs-body:     14px;
+  --fs-sm:       13px;
+  --fs-xs:       12px;
+}
+
+/* ─── RESET ─── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; overflow-x:hidden; }
+body {
+  background: linear-gradient(160deg, #e8f2fb 0%, #eff7ff 50%, #f5f9fd 100%);
+  min-height: 100vh;
+  font-family: 'Noto Sans KR', -apple-system, sans-serif;
+  font-size: var(--fs-body);
+  color: var(--text);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  word-break: keep-all;
+  overflow-x: hidden;
+}
+img { max-width:100%; display:block; }
+button { font-family: inherit; }
+
+/* ─── LAYOUT ─── */
+.wrap {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+  box-sizing: border-box;
+}
+
+/* ─── STICKY CTA ─── */
+.sticky {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 999;
+  padding: 10px 16px 20px;
+  background: linear-gradient(0deg, rgba(10,31,56,.97) 70%, transparent);
+  backdrop-filter: blur(2px);
+}
+.sticky a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, var(--gold-lt) 0%, #e8b82a 100%);
+  color: var(--navy);
+  font-size: 15px;
+  font-weight: 900;
+  padding: 15px 20px;
+  border-radius: 50px;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(200,152,58,.45);
+  letter-spacing: -.2px;
+  transition: transform .15s, box-shadow .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.sticky a:active { transform: scale(.97); }
+
+/* ─── HERO ─── */
+.hero-emoji { font-size: 56px; line-height: 1; }
+.hero-h1 {
+  font-size: var(--fs-hero);
+  font-weight: 900;
+  line-height: 1.4;
+  word-break: keep-all;
+  letter-spacing: -.5px;
+}
+.hero-sub {
+  font-size: var(--fs-sm);
+  line-height: 1.85;
+  color: var(--text2);
+}
+
+/* ─── SECTION HEAD ─── */
+.sh {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 40px 0 16px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  color: var(--ocean);
+}
+.sh .n {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--ocean);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sh::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ─── CARD ─── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px 18px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ─── ACCORDION ─── */
+.acc {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  margin-bottom: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.acc-t {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  transition: background .15s;
+}
+.acc-t:active { background: var(--sky); }
+.acc-ic {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.acc-ic.b { background: #e8f3fc; }
+.acc-ic.g { background: var(--green-lt); }
+.acc-ic.y { background: #fef8e6; }
+.acc-ic.p { background: #f2ecff; }
+.acc-tw { flex: 1; min-width: 0; }
+.acc-title {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: -.3px;
+}
+.acc-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.acc-arr {
+  font-size: 14px;
+  color: var(--muted2);
+  transition: transform .3s;
+  flex-shrink: 0;
+}
+.acc-arr.open { transform: rotate(180deg); }
+.acc-body {
+  display: none;
+  padding: 0 18px 20px;
+  border-top: 1px solid var(--sky);
+}
+.acc-body.open { display: block; }
+
+/* ─── 섹션 아코디언 버튼 (sec-btn) ─── */
+.sec-acc {
+  width: 100%;
+  margin-bottom: 2px;
+  box-sizing: border-box;
+}
+.sec-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--white);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--r);
+  cursor: pointer;
+  padding: 16px 18px;
+  min-height: 60px;
+  text-align: left;
+  margin: 28px 0 0;
+  box-shadow: var(--shadow-sm);
+  transition: background .15s, border-color .15s;
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+  min-width: 0;
+}
+.sec-btn span[style*="flex:1"] {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sec-btn:active { background: var(--sky); }
+
+/* ─── 타이포 유틸 ─── */
+.card-title-lg { font-size: var(--fs-h2); font-weight: 900; letter-spacing: -.4px; }
+.card-title-md { font-size: var(--fs-h3); font-weight: 900; letter-spacing: -.3px; }
+.card-body { font-size: var(--fs-body); line-height: 1.8; color: var(--text2); }
+.card-sm { font-size: var(--fs-sm); line-height: 1.75; color: var(--text2); }
+.card-xs { font-size: var(--fs-xs); line-height: 1.7; color: var(--muted); }
+
+/* ─── 배지/라벨 유틸 ─── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 50px;
+  letter-spacing: .3px;
+}
+.badge-gold { background: var(--gold-pale); color: var(--gold); border: 1px solid #f0d890; }
+.badge-blue { background: #e8f3fc; color: var(--ocean); border: 1px solid #c8dff0; }
+.badge-red  { background: #fff0ef; color: var(--red); border: 1px solid #f5ccc9; }
+.badge-green{ background: var(--green-lt); color: var(--green); border: 1px solid #b8ecd4; }
+
+/* ─── STEP BADGE ─── */
+.step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--ocean);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+/* ─── 구분선 ─── */
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* ─── FLOAT TOP 버튼 ─── */
+#float-top {
+  position: fixed;
+  bottom: 20px; right: 16px;
+  z-index: 998;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--navy2);
+  color: #fff;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .3s, transform .3s;
+  -webkit-tap-highlight-color: transparent;
+}
+#float-top.show { opacity: 1; transform: translateY(0); }
+
+/* ─── BACK TOP 버튼 ─── */
+.back-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin: 10px 0 4px;
+  padding: 10px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ─── HERO 배너 뱃지 ─── */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 50px;
+  letter-spacing: .5px;
+}
+
+/* ─── GRID 유틸 ─── */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+/* ─── 테이블 유틸 ─── */
+.tbl-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--sky);
+  align-items: center;
+  gap: 4px;
+}
+.tbl-row:last-child { border-bottom: none; }
+.tbl-head {
+  background: linear-gradient(135deg, var(--navy), var(--navy2));
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  padding: 11px 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* ─── 애니메이션 ─── */
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — Tablet (600px+)
+   ══════════════════════════════════════════ */
+@media (min-width: 600px) {
+  :root {
+    --fs-hero:  30px;
+    --fs-h1:    26px;
+    --fs-h2:    21px;
+    --fs-h3:    18px;
+    --fs-body:  15px;
+    --fs-sm:    14px;
+    --fs-xs:    13px;
+  }
+  .wrap { max-width: 560px; padding: 0 24px 110px; }
+  .card { padding: 24px 22px; margin-bottom: 14px; }
+  .sh { margin: 48px 0 18px; font-size: 14px; }
+  .sh .n { width: 32px; height: 32px; font-size: 13px; }
+  .acc-t { padding: 18px 22px; }
+  .acc-body { padding: 0 22px 22px; }
+  .acc-title { font-size: 16px; }
+  .sec-btn { padding: 18px 22px; margin: 32px 0 0; min-height: 60px; }
+  .hero-emoji { font-size: 64px; }
+  .sticky a { font-size: 16px; padding: 16px 24px; }
+  .tbl-row { padding: 13px 16px; }
+  .tbl-head { padding: 12px 16px; }
+  .grid2 { gap: 12px; }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — Desktop (900px+)
+   ══════════════════════════════════════════ */
+@media (min-width: 900px) {
+  :root {
+    --fs-hero:  36px;
+    --fs-h1:    30px;
+    --fs-h2:    24px;
+    --fs-h3:    20px;
+    --fs-body:  16px;
+    --fs-sm:    15px;
+    --fs-xs:    14px;
+  }
+  .wrap { max-width: 680px; padding: 0 40px 130px; }
+  .card { padding: 30px 28px; margin-bottom: 16px; }
+  .sh { margin: 60px 0 20px; font-size: 13px; }
+  .sh .n { width: 36px; height: 36px; font-size: 14px; }
+  .acc-t { padding: 20px 28px; }
+  .acc-body { padding: 0 28px 26px; }
+  .acc-ic { width: 46px; height: 46px; border-radius: 14px; }
+  .acc-title { font-size: 17px; }
+  .sec-btn { padding: 18px 26px; margin: 36px 0 0; min-height: 60px; }
+  .hero-emoji { font-size: 76px; }
+  .sticky a { font-size: 17px; padding: 17px 28px; max-width: 500px; }
+  .tbl-row { padding: 14px 20px; }
+  .tbl-head { padding: 13px 20px; }
+  .grid2 { gap: 14px; }
+  .grid3 { gap: 10px; }
+  #float-top { bottom: 24px; right: 20px; width: 46px; height: 46px; }
+}
+
+
+/* ═══════════ 주제 버튼 내비게이션 ═══════════ */
+.menu-head {
+  text-align: center;
+  margin: 34px 0 18px;
+}
+.menu-head .ov {
+  font-size: 11px; font-weight: 800; letter-spacing: 2.5px;
+  color: var(--gold); margin-bottom: 8px;
+}
+.menu-head .tt {
+  font-size: 20px; font-weight: 900; color: var(--navy);
+  letter-spacing: -.4px;
+}
+.menu-head .sb {
+  font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.7;
+}
+.menu-list { display: flex; flex-direction: column; gap: 9px; }
+.topic-btn {
+  width: 100%;
+  display: flex; align-items: center; gap: 13px;
+  background: var(--white);
+  border: 1.5px solid var(--border2);
+  border-radius: 14px;
+  padding: 15px 16px;
+  min-height: 62px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: border-color .15s, transform .1s, box-shadow .15s;
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+.topic-btn:active { transform: scale(.985); }
+.topic-btn:hover { border-color: var(--gold); box-shadow: var(--shadow); }
+.topic-btn .ic {
+  width: 38px; height: 38px; flex-shrink: 0;
+  border-radius: 11px;
+  background: var(--sky);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+}
+.topic-btn .tx {
+  flex: 1;
+  font-size: 14.5px; font-weight: 800; color: var(--navy);
+  line-height: 1.45; letter-spacing: -.3px; word-break: keep-all;
+}
+.topic-btn .ar { font-size: 17px; color: var(--muted2); flex-shrink: 0; }
+.topic-btn.gold { border-color: var(--gold); background: var(--gold-pale); }
+.topic-btn.gold .ic { background: #fff; border-color: var(--gold); }
+
+.menu-group { margin: 26px 0 12px; }
+.menu-group:first-child { margin-top: 4px; }
+.mg-over {
+  font-size: 10px; font-weight: 800; letter-spacing: 2px;
+  color: var(--gold); margin-bottom: 3px;
+}
+.mg-name {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13.5px; font-weight: 900; color: var(--navy);
+  letter-spacing: -.2px;
+}
+.mg-name::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* 내용 화면 */
+.topic-bar {
+  display: flex; align-items: center; gap: 10px;
+  position: sticky; top: 0; z-index: 900;
+  background: rgba(250,252,254,.94);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  margin: 0 -16px 18px;
+  padding: 12px 16px;
+}
+.topic-bar .bk {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--white);
+  border: 1.5px solid var(--border2);
+  border-radius: 50px;
+  padding: 7px 14px 7px 11px;
+  font-size: 12.5px; font-weight: 800; color: var(--ocean);
+  cursor: pointer; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.topic-bar .tl {
+  font-size: 14px; font-weight: 900; color: var(--navy);
+  line-height: 1.35; word-break: keep-all;
+}
+.topic-foot {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  width: 100%;
+  margin: 26px 0 8px;
+  padding: 15px;
+  background: var(--white);
+  border: 1.5px solid var(--border2);
+  border-radius: 50px;
+  font-size: 13.5px; font-weight: 800; color: var(--ocean);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  -webkit-tap-highlight-color: transparent;
+}
+/* 문의 카드 */
+.ct-card {
+  display: flex; align-items: center; gap: 14px;
+  text-decoration: none;
+  border-radius: 14px;
+  padding: 15px 18px;
+  color: #fff;
+  margin-bottom: 10px;
+}
+.ct-card .cn { font-size: 14.5px; font-weight: 900; }
+.ct-card .cs { font-size: 11px; color: rgba(255,255,255,.68); margin-top: 2px; }
+
+</style>
+<style>
+:root { --green-light: var(--green-lt); --coral: var(--red); }
+.wrap-use { width:100%; max-width:480px; margin:0 auto; padding:0 16px 40px; box-sizing:border-box; }
+.head-use { max-width:480px; margin:0 auto; padding:26px 16px 18px; text-align:center; }
+.head-use .eyebrow { display:inline-block; background:rgba(10,31,56,.06); color:var(--ocean); font-size:11px; font-weight:800; letter-spacing:2px; padding:4px 14px; border-radius:20px; margin-bottom:12px; }
+.head-use h1 { font-size:24px; font-weight:900; color:var(--navy); line-height:1.4; letter-spacing:-.5px; }
+.head-use p { font-size:13px; color:var(--muted); line-height:1.8; margin-top:8px; }
+.tryme { animation: tryme-pulse 1.8s ease-in-out infinite; }
+@keyframes tryme-pulse {
+  0%,100% { box-shadow:0 0 0 0 rgba(200,152,58,.35); }
+  50%     { box-shadow:0 0 0 8px rgba(200,152,58,0); }
+}
+.tryme2 { animation: tryme2-pulse 1.8s ease-in-out .9s infinite; }
+@keyframes tryme2-pulse {
+  0%,100% { box-shadow:0 0 0 0 rgba(26,122,74,.30); }
+  50%     { box-shadow:0 0 0 8px rgba(26,122,74,0); }
+}
+@media (prefers-reduced-motion: reduce) { .tryme, .tryme2 { animation:none; } }
+.foot-use { max-width:480px; margin:0 auto; padding:6px 16px 30px; text-align:center; font-size:11.5px; color:var(--muted2); line-height:1.9; }
+</style>
+</head>
+<body>
+
+<header class="head-use">
+  <div class="eyebrow">REWARD GUIDE</div>
+  <h1>💎 리워드는 어떻게 쓰나요?</h1>
+  <p>쌓인 리워드로 크루즈를 예약할 때<br>적용되는 기준을 정리했어요</p>
+</header>
+
+<div class="wrap-use">
+<!-- 1RP = $1 강조 -->
+<div style="background:linear-gradient(135deg,var(--navy),#0a3a6e); border-radius:var(--r); padding:24px 20px; margin-bottom:12px; box-shadow:0 6px 28px rgba(10,37,64,.25); position:relative; overflow:hidden;">
+  <div style="position:absolute; right:-20px; bottom:-20px; font-size:114px; opacity:.05;">💎</div>
+
+  <!-- 1RP = $1 등식 -->
+  <div style="text-align:center;">
+    <div style="display:inline-block; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); color:rgba(255,255,255,.8); font-size:11px; font-weight:700; letter-spacing:2px; padding:4px 14px; border-radius:20px; margin-bottom:14px;">STEP 1 · 리워드 할인</div>
+    <div style="font-size:13px; color:rgba(255,255,255,.65); margin-bottom:12px;">최대 리워드 할인 적용 시 · 객실가의 50%까지</div>
+    <div style="display:flex; align-items:center; justify-content:center; gap:14px;">
+      <div style="text-align:center;">
+        <div style="font-size:50px; font-weight:900; color:var(--gold); line-height:1;">1</div>
+        <div style="font-size:12px; font-weight:700; color:rgba(255,255,255,.7); margin-top:2px;">리워드 포인트</div>
+        <div style="font-size:10px; color:rgba(255,255,255,.4);">(RP)</div>
+      </div>
+      <div style="font-size:32px; font-weight:900; color:rgba(255,255,255,.35);">=</div>
+      <div style="text-align:center;">
+        <div style="font-size:50px; font-weight:900; color:#4ade80; line-height:1;">$1</div>
+        <div style="font-size:12px; font-weight:700; color:rgba(255,255,255,.7); margin-top:2px;">크루즈 예약 결제</div>
+        <div style="font-size:10px; color:rgba(255,255,255,.4);">할인 적용</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2RP = $1 강조 + 인터랙티브 계산기 -->
+<div style="background:linear-gradient(135deg,var(--navy),#0a3a6e); border-radius:var(--r); padding:24px 20px; margin-bottom:12px; box-shadow:0 6px 28px rgba(10,37,64,.25); position:relative; overflow:hidden;">
+  <div style="position:absolute; right:-20px; bottom:-20px; font-size:114px; opacity:.05;">💎</div>
+
+  <!-- 2RP = $1 등식 -->
+  <div style="text-align:center; margin-bottom:20px;">
+    <div style="display:inline-block; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); color:rgba(255,255,255,.8); font-size:11px; font-weight:700; letter-spacing:2px; padding:4px 14px; border-radius:20px; margin-bottom:14px;">STEP 2 · 올 리워드</div>
+    <div style="font-size:13px; color:rgba(255,255,255,.65); margin-bottom:12px;">올 리워드 크루즈 예약 결제 시 적용</div>
+    <div style="display:flex; align-items:center; justify-content:center; gap:14px;">
+      <div style="text-align:center;">
+        <div style="font-size:50px; font-weight:900; color:var(--gold); line-height:1;">2</div>
+        <div style="font-size:12px; font-weight:700; color:rgba(255,255,255,.7); margin-top:2px;">리워드 포인트</div>
+        <div style="font-size:10px; color:rgba(255,255,255,.4);">(RP)</div>
+      </div>
+      <div style="font-size:32px; font-weight:900; color:rgba(255,255,255,.35);">=</div>
+      <div style="text-align:center;">
+        <div style="font-size:50px; font-weight:900; color:#4ade80; line-height:1;">$1</div>
+        <div style="font-size:12px; font-weight:700; color:rgba(255,255,255,.7); margin-top:2px;">크루즈 예약 결제</div>
+        <div style="font-size:10px; color:rgba(255,255,255,.4);">할인 적용</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 리워드 시뮬레이터 -->
+<div class="card" style="border:2px solid var(--ocean); padding:18px 16px;">
+  <div style="font-size:15px; font-weight:900; color:var(--navy); margin-bottom:4px;">🧮 리워드 예약 시뮬레이터</div>
+  <!-- 안내문구 강조 -->
+  <div class="tryme" style="background:linear-gradient(135deg,#fff3c0,#fdf6e3); border:2px solid var(--gold); border-radius:12px; padding:13px 14px; margin-bottom:14px; text-align:center;">
+    <div style="font-size:15px; font-weight:900; color:#8a6000; letter-spacing:-.3px;">👇 금액을 바꿔보세요!</div>
+    <div style="font-size:12px; font-weight:600; color:#9c7c34; margin-top:3px; line-height:1.6;">숫자를 직접 입력하면 필요한 리워드가<br>바로 다시 계산돼요</div>
+  </div>
+
+  <!-- 입력 2개 — 가로 1줄 반반 -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
+    <!-- 객실가 -->
+    <div style="background:var(--sky); border-radius:10px; padding:12px 12px;">
+      <label style="font-size:10px; font-weight:700; color:var(--muted); display:block; margin-bottom:6px;">🛳️ 객실가</label>
+      <div style="display:flex; align-items:center; gap:4px;">
+        <span style="font-size:14px; font-weight:800; color:var(--navy); flex-shrink:0;">$</span>
+        <input id="sim_room" type="number" inputmode="numeric" value="1800" min="0" oninput="simCalc()"
+          style="flex:1; min-width:0; font-size:18px; font-weight:900; color:var(--ocean); border:2px solid var(--ocean); border-radius:8px; padding:7px 8px; text-align:right; background:#fff; outline:none; -webkit-appearance:none; appearance:none; width:100%;">
+      </div>
+    </div>
+    <!-- 내 리워드 -->
+    <div style="background:#fdf9e8; border-radius:10px; padding:12px 12px;">
+      <label style="font-size:10px; font-weight:700; color:var(--muted); display:block; margin-bottom:6px;">✨ 리워드 포인트</label>
+      <div style="display:flex; align-items:center; gap:4px;">
+        <input id="sim_rp" type="number" inputmode="numeric" value="2800" min="0" oninput="simCalc()"
+          style="flex:1; min-width:0; font-size:18px; font-weight:900; color:#8a6000; border:2px solid var(--gold); border-radius:8px; padding:7px 8px; text-align:right; background:#fff; outline:none; -webkit-appearance:none; appearance:none; width:100%;">
+        <span style="font-size:12px; font-weight:800; color:#8a6000; flex-shrink:0;">RP</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div style="background:#f0f8ff; border:1.5px solid #b8d8f0; border-radius:12px; padding:14px; margin-bottom:10px;">
+    <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-bottom:10px;">
+      <span style="background:var(--ocean); color:#fff; font-size:11px; font-weight:900; padding:3px 11px; border-radius:20px; flex-shrink:0;">STEP 1</span>
+      <span style="font-size:13px; font-weight:900; color:var(--ocean);">최대 리워드 할인</span>
+    </div>
+    <div style="margin-bottom:10px;">
+      <span style="background:#fff3c0; color:#8a6000; font-size:11px; font-weight:900; padding:4px 12px; border-radius:20px; border:1px solid #e8d060; display:inline-block;">1 RP = $1 적용</span>
+    </div>
+    <div style="font-size:12px; color:var(--muted); margin-bottom:10px; line-height:1.6;">
+      리워드 달러 차감 한도는 <strong style="color:var(--navy);">객실가의 최대 50%</strong>
+    </div>
+    <div style="background:var(--white); border-radius:8px; padding:12px; border:1px solid var(--border);">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--border);">
+        <span style="font-size:12px; color:var(--muted);">객실가</span>
+        <span style="font-size:14px; font-weight:900; color:var(--navy);" id="sim_room_disp">$1,800</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0 0;">
+        <span style="font-size:12px; color:var(--muted);">최대 리워드 사용액 (50%)</span>
+        <span style="font-size:14px; font-weight:900; color:var(--ocean);" id="sim_max_reward">$900</span>
+      </div>
+    </div>
+    <div id="sim_rp_status" style="font-size:12px; text-align:center; font-weight:700; padding:8px; border-radius:8px; background:var(--green-light); color:var(--green); margin-top:10px;">
+      ✅ 리워드 충분 — 최대 할인 적용 가능
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div style="background:#f0fff6; border:1.5px solid #86efac; border-radius:12px; padding:14px; margin-bottom:12px;">
+    <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-bottom:12px;">
+      <span style="background:var(--green); color:#fff; font-size:11px; font-weight:900; padding:3px 11px; border-radius:20px; flex-shrink:0;">STEP 2</span>
+      <span style="font-size:13px; font-weight:900; color:var(--green);">나머지 결제 방법 선택</span>
+    </div>
+
+    <!-- 안내문구 강조 -->
+    <div class="tryme2" style="background:#e8fbf0; border:2px solid var(--green); border-radius:12px; padding:11px 12px; margin-bottom:10px; text-align:center;">
+      <div style="font-size:14px; font-weight:900; color:var(--green); letter-spacing:-.3px;">👇 두 가지 다 눌러보세요!</div>
+      <div style="font-size:11.5px; font-weight:600; color:#2f7f5a; margin-top:3px; line-height:1.6;">리워드로만 낼 때와 카드를 섞을 때가<br>어떻게 달라지는지 바로 비교돼요</div>
+    </div>
+
+    <!-- 탭 -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+      <button id="tab_allrp" onclick="simSelectTab('allrp')"
+        style="padding:10px 8px; border-radius:10px; border:2px solid var(--ocean); background:var(--ocean); color:#fff; font-size:12px; font-weight:900; cursor:pointer; -webkit-tap-highlight-color:transparent; word-break:keep-all;">
+        💎 올 리워드
+      </button>
+      <button id="tab_card" onclick="simSelectTab('card')"
+        style="padding:10px 8px; border-radius:10px; border:2px solid var(--border); background:#fff; color:var(--muted); font-size:12px; font-weight:900; cursor:pointer; -webkit-tap-highlight-color:transparent; word-break:keep-all;">
+        💳 카드 결제
+      </button>
+    </div>
+
+    <!-- 올 리워드 결과 -->
+    <div id="result_allrp">
+      <div style="background:rgba(22,100,74,.05); border-radius:10px; padding:12px; margin-bottom:8px;">
+        <!-- ① 행 -->
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 0; border-bottom:1px dashed #86efac;">
+          <div style="flex:1;">
+            <div style="font-size:12px; color:#1a5c38; font-weight:700; margin-bottom:4px;">① 리워드 달러 차감 (50%)</div>
+            <span style="background:#fff3c0; color:#8a6000; font-size:10px; font-weight:900; padding:2px 8px; border-radius:20px; border:1px solid #e8d060; display:inline-block;">1 RP = $1</span>
+          </div>
+          <strong id="sim_step1_rp" style="font-size:13px; color:var(--navy); flex-shrink:0;">900 RP</strong>
+        </div>
+        <!-- ② 행 -->
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 0; border-bottom:1px dashed #86efac;">
+          <div style="flex:1;">
+            <div style="font-size:12px; color:#1a5c38; font-weight:700; margin-bottom:4px;">② 나머지 올 리워드 결제</div>
+            <span style="background:#e8f3fc; color:var(--ocean); font-size:10px; font-weight:900; padding:2px 8px; border-radius:20px; border:1px solid #b8d8f0; display:inline-block;">2 RP = $1</span>
+          </div>
+          <strong id="sim_step2_rp" style="font-size:13px; color:var(--navy); flex-shrink:0;">1,800 RP</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 0;">
+          <span style="font-size:12px; color:#1a5c38; font-weight:700;">총 필요 리워드</span>
+          <strong id="sim_total_rp" style="font-size:14px; color:var(--ocean);">2,700 RP</strong>
+        </div>
+      </div>
+      <div id="sim_allrp_result" style="background:var(--green-light); border-radius:8px; padding:10px 12px; text-align:center; font-size:13px; font-weight:700; color:var(--green);">
+        ✅ 내 리워드로 전액 결제 가능!
+      </div>
+    </div>
+
+    <!-- 카드 결제 결과 -->
+    <div id="result_card" style="display:none;">
+      <div style="background:rgba(10,110,158,.05); border-radius:10px; padding:12px; margin-bottom:8px;">
+        <!-- ① 행 -->
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 0; border-bottom:1px dashed #86efac;">
+          <div style="flex:1;">
+            <div style="font-size:12px; color:#1a5c38; font-weight:700; margin-bottom:4px;">① 리워드로 결제 (50%)</div>
+            <span style="background:#fff3c0; color:#8a6000; font-size:10px; font-weight:900; padding:2px 8px; border-radius:20px; border:1px solid #e8d060; display:inline-block;">1 RP = $1</span>
+          </div>
+          <strong id="sim_card_rp" style="font-size:13px; color:var(--navy); flex-shrink:0;">900 RP</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 0;">
+          <span style="font-size:12px; color:#1a5c38;">② 카드로 결제</span>
+          <strong id="sim_card_pay" style="font-size:13px; color:var(--ocean);">$900</strong>
+        </div>
+      </div>
+      <div id="sim_card_result" style="background:#f0f8ff; border-radius:8px; padding:10px 12px; text-align:center; font-size:13px; font-weight:700; color:var(--ocean);">
+        💳 카드 결제금액: $900
+      </div>
+    </div>
+  </div>
+
+  <div style="font-size:11px; color:var(--muted2); text-align:center; line-height:1.7;">
+    ※ 실제 결제 시 수수료 포함 최종 금액 기준으로<br>리워드를 넉넉하게 준비하는 것을 권장합니다
+  </div>
+</div>
+
+<script>
+var simTab = 'allrp';
+
+function simSelectTab(tab) {
+  simTab = tab;
+  var btnRP   = document.getElementById('tab_allrp');
+  var btnCard = document.getElementById('tab_card');
+  var resRP   = document.getElementById('result_allrp');
+  var resCard = document.getElementById('result_card');
+  if (tab === 'allrp') {
+    btnRP.style.background   = 'var(--ocean)';
+    btnRP.style.color        = '#fff';
+    btnRP.style.borderColor  = 'var(--ocean)';
+    btnCard.style.background = '#fff';
+    btnCard.style.color      = 'var(--muted)';
+    btnCard.style.borderColor= 'var(--border)';
+    resRP.style.display   = 'block';
+    resCard.style.display = 'none';
+  } else {
+    btnCard.style.background = 'var(--green)';
+    btnCard.style.color      = '#fff';
+    btnCard.style.borderColor= 'var(--green)';
+    btnRP.style.background   = '#fff';
+    btnRP.style.color        = 'var(--muted)';
+    btnRP.style.borderColor  = 'var(--border)';
+    resRP.style.display   = 'none';
+    resCard.style.display = 'block';
+  }
+  simCalc();
+}
+
+function fmt(n)  { return '$' + Math.round(n).toLocaleString(); }
+function fmtRP(n){ return Math.round(n).toLocaleString() + ' RP'; }
+
+function simCalc() {
+  var room = parseFloat(document.getElementById('sim_room').value) || 0;
+  var rp   = parseFloat(document.getElementById('sim_rp').value)   || 0;
+
+  var maxDiscount = room * 0.5;       // 최대 50% 리워드 달러 차감
+  var remaining   = room - maxDiscount; // 나머지 50%
+
+  // 리워드 달러 차감에 필요한 RP = maxDiscount (1달러 = 1리워드달러)
+  var rpForStep1  = maxDiscount;
+  // 나머지를 올 리워드로 결제 시 필요 RP = remaining * 2 (2RP = $1)
+  var rpForStep2  = remaining * 2;
+  var totalRpNeeded = rpForStep1 + rpForStep2;
+
+  // 표시
+  document.getElementById('sim_room_disp').textContent = fmt(room);
+  document.getElementById('sim_max_reward').textContent = fmt(maxDiscount);
+
+  // RP 충분 여부
+  var statusEl = document.getElementById('sim_rp_status');
+  if (rp >= rpForStep1) {
+    statusEl.style.background = 'var(--green-light)';
+    statusEl.style.color      = 'var(--green)';
+    statusEl.textContent      = '✅ 리워드 충분 — 최대 할인 적용 가능';
+  } else {
+    statusEl.style.background = '#fff5f5';
+    statusEl.style.color      = 'var(--coral)';
+    statusEl.textContent      = '⚠️ 리워드 부족 — 사용 가능: ' + fmt(rp) + ' / 필요: ' + fmt(rpForStep1);
+  }
+
+  // 올 리워드 결제
+  var usableRP1 = Math.min(rp, rpForStep1);
+  document.getElementById('sim_step1_rp').textContent = fmtRP(usableRP1) + ' 사용';
+  document.getElementById('sim_step2_rp').textContent = fmtRP(rpForStep2) + ' 필요';
+  document.getElementById('sim_total_rp').textContent = fmtRP(totalRpNeeded) + ' 필요';
+
+  var allRpResultEl = document.getElementById('sim_allrp_result');
+  if (rp >= totalRpNeeded) {
+    allRpResultEl.style.background = 'var(--green-light)';
+    allRpResultEl.style.color      = 'var(--green)';
+    allRpResultEl.textContent      = '✅ 내 리워드로 전액 결제 가능!';
+  } else if (rp >= rpForStep1) {
+    var shortage = totalRpNeeded - rp;
+    allRpResultEl.style.background = '#fffbeb';
+    allRpResultEl.style.color      = '#8a6000';
+    allRpResultEl.textContent      = '⚡ STEP2 리워드 ' + fmtRP(shortage) + ' 부족 — 카드 결제 혼합 추천';
+  } else {
+    allRpResultEl.style.background = '#fff5f5';
+    allRpResultEl.style.color      = 'var(--coral)';
+    allRpResultEl.textContent      = '❌ 리워드 부족 — 리워드를 더 적립 후 예약하세요';
+  }
+
+  // 카드 결제
+  var cardRemaining = room - usableRP1;  // 실제 RP 차감 후 카드로 낼 금액
+  document.getElementById('sim_card_rp').textContent  = fmtRP(usableRP1) + ' 사용';
+  document.getElementById('sim_card_pay').textContent = fmt(cardRemaining);  // ② 카드로 결제
+  var cardResultEl = document.getElementById('sim_card_result');
+  // 하단 결제금액 = ② 카드로 결제와 항상 동일
+  if (rp >= rpForStep1) {
+    cardResultEl.style.background = '#f0faff';
+    cardResultEl.style.color      = 'var(--ocean)';
+    cardResultEl.style.fontSize   = '14px';
+    cardResultEl.textContent      = '💳 카드 결제금액: ' + fmt(cardRemaining);
+  } else {
+    // RP 부족 시 실제 카드 결제금액 표시
+    cardResultEl.style.background = '#fff5f5';
+    cardResultEl.style.color      = 'var(--coral)';
+    cardResultEl.style.fontSize   = '13px';
+    cardResultEl.textContent      = '💳 카드 결제금액: ' + fmt(cardRemaining) + ' (리워드 부족)';
+  }
+}
+</script>
+    
+</div>
+
+<div class="foot-use">
+  ※ 실제 예약 금액은 선박·일정·객실 등급에 따라 달라질 수 있어요<br>
+  본 페이지는 리워드 사용 기준을 이해하기 위한 참고용 계산기입니다
+</div>
+
+<script>
+window.addEventListener('load', function(){ if (typeof simCalc === 'function') simCalc(); });
+</script>
+
+</body>
+</html>
